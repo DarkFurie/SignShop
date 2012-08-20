@@ -1,0 +1,5 @@
+name: SignShop
+author: Rellynn
+main: fr.rellynn.signshop.SignShopPlugin
+version: 1.3
+depend: [Vault]
