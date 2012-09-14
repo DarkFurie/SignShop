@@ -55,9 +55,14 @@ public class SSPlayerListener implements Listener
 						{
 							if (playerinventory.getItemInHand().getType() != Material.AIR)
 							{
+								if (plugin.infinitePlayers.contains(player))
+								{
+									shop.setInfinite(true);
+								}
+								
 								shop.defineItem(material, data);
-								player.sendMessage(ChatColor.GREEN + "Vous avez définis l'item " + ChatColor.AQUA + material.name() + ChatColor.GREEN + " en tant qu'objet de vente.");
-							
+								player.sendMessage(ChatColor.GREEN + "Vous avez défini l'item " + ChatColor.AQUA + material.name() + ChatColor.GREEN + " en tant qu'objet de vente.");
+								
 								plugin.um.update(shop, ChatColor.GOLD + material.name(), 1);
 							}
 							else
@@ -67,30 +72,37 @@ public class SSPlayerListener implements Listener
 						}
 						else
 						{
-							if ((material == shop.getMaterial()) && (data == shop.getData()) && (amount >= shop.getAmount()))
+							if (!shop.getMaterial().equals(Material.AIR))
 							{
-								if (shop.getMaximum() >= shop.getAmount() * shop.getPacks())
+								if ((material == shop.getMaterial()) && (data == shop.getData()) && (amount >= shop.getAmount()))
 								{
-									shop.addItems();
-									
-									plugin.um.setItemInHand(playerinventory, material, amount - shop.getAmount(), data);
-									player.updateInventory();
-									
-									player.sendMessage(ChatColor.GREEN + "Vous avez ajouté " + ChatColor.AQUA + shop.getAmount() + " " + material.name() + ChatColor.GREEN + " à votre magasin.");
-									
-									if ((shop.getPacks() > 0) && (sign.getLine(0).startsWith(ChatColor.DARK_GRAY.toString())))
+									if (shop.getMaximum() >= shop.getAmount() * shop.getPacks())
 									{
-										plugin.um.update(shop, ChatColor.AQUA + "A/V par " + shop.getAmount(), 0);
+										shop.addItems();
+										
+										plugin.um.setItemInHand(playerinventory, material, amount - shop.getAmount(), data);
+										player.updateInventory();
+										
+										player.sendMessage(ChatColor.GREEN + "+ Vous avez ajouté " + ChatColor.AQUA + shop.getAmount() + " " + material.name() + ChatColor.GREEN + " à votre magasin.");
+										
+										if ((shop.getPacks() > 0) && (sign.getLine(0).startsWith(ChatColor.DARK_GRAY.toString())))
+										{
+											plugin.um.update(shop, ChatColor.AQUA + "A/V par " + shop.getAmount(), 0);
+										}
+									}
+									else
+									{
+										player.sendMessage(ChatColor.RED + "Votre magasin est plein.");
 									}
 								}
 								else
 								{
-									player.sendMessage(ChatColor.RED + "Votre magasin est plein.");
+									player.sendMessage(ChatColor.RED + "Vous devez avoir " + ChatColor.DARK_RED + shop.getAmount() + " " + shop.getMaterial().name() + ChatColor.RED + " dans votre main pour remplir votre magasin.");
 								}
 							}
 							else
 							{
-								player.sendMessage(ChatColor.RED + "Vous devez avoir " + ChatColor.DARK_RED + shop.getAmount() + " " + shop.getMaterial().name() + ChatColor.RED + " dans votre main pour remplir votre magasin.");
+								player.sendMessage(ChatColor.RED + "Aucun objet n'est défini à la vente dans votre magasin.");
 							}
 						}
 					}
@@ -100,53 +112,60 @@ public class SSPlayerListener implements Listener
 						{
 							if (plugin.permission.has(player, "signshop.transactions"))
 							{
-								if ((material == shop.getMaterial()) && (data == shop.getData()) && (amount >= shop.getAmount()))
+								if (!shop.getMaterial().equals(Material.AIR))
 								{
-									if (shop.getMaximum() >= shop.getAmount() * shop.getPacks())
+									if ((material == shop.getMaterial()) && (data == shop.getData()) && (amount >= shop.getAmount()))
 									{
-										if (plugin.economy.has(shop.getOwner(), shop.getSale()))
+										if (shop.getMaximum() >= shop.getAmount() * shop.getPacks())
 										{
-											World world = location.getWorld();
-											Double x = location.getX();
-											Double y = location.getY();
-											Double z = location.getZ();
-											
-											if (plugin.confirm.contains("sale_" + player.getName() + "_" + world.getName() + "_" + x + "_" + y + "_" + z))
+											if (plugin.economy.has(shop.getOwner(), shop.getSale()))
 											{
-												shop.addItems();
+												World world = location.getWorld();
+												Double x = location.getX();
+												Double y = location.getY();
+												Double z = location.getZ();
 												
-												plugin.economy.withdrawPlayer(shop.getOwner(), shop.getSale());
-												plugin.economy.depositPlayer(player.getName(), shop.getSale());
-												
-												plugin.um.setItemInHand(playerinventory, material, amount - shop.getAmount(), data);
-												player.updateInventory();
-												
-												player.sendMessage(ChatColor.GREEN + "Vous avez vendu " + ChatColor.AQUA + shop.getAmount() + " " + material.name() + ChatColor.GREEN + " contre " + ChatColor.AQUA + shop.getSale() + ChatColor.GREEN + " à ce magasin.");
-												
-												if ((shop.getPacks() > 0) && (sign.getLine(0).startsWith(ChatColor.DARK_GRAY.toString())))
+												if (plugin.confirm.contains("sale_" + player.getName() + "_" + world.getName() + "_" + x + "_" + y + "_" + z))
 												{
-													plugin.um.update(shop, ChatColor.AQUA + "A/V par " + shop.getAmount(), 0);
+													shop.addItems();
+													
+													plugin.economy.withdrawPlayer(shop.getOwner(), shop.getSale());
+													plugin.economy.depositPlayer(player.getName(), shop.getSale());
+													
+													plugin.um.setItemInHand(playerinventory, material, amount - shop.getAmount(), data);
+													player.updateInventory();
+													
+													player.sendMessage(ChatColor.GREEN + "Vous avez vendu " + ChatColor.AQUA + shop.getAmount() + " " + material.name() + ChatColor.GREEN + " contre " + ChatColor.AQUA + plugin.economy.format(shop.getSale()) + ChatColor.GREEN + " à ce magasin.");
+													
+													if ((shop.getPacks() > 0) && (sign.getLine(0).startsWith(ChatColor.DARK_GRAY.toString())))
+													{
+														plugin.um.update(shop, ChatColor.AQUA + "A/V par " + shop.getAmount(), 0);
+													}
+												}
+												else
+												{
+													plugin.confirm.add("sale_" + player.getName() + "_" + world.getName() + "_" + x + "_" + y + "_" + z);
+													player.sendMessage(ChatColor.GREEN + "Vous êtes sur le point de vendre " + ChatColor.AQUA + shop.getAmount() + " " + shop.getMaterial() + ChatColor.GREEN + " en échange de " + ChatColor.AQUA + plugin.economy.format(shop.getSale()) + ChatColor.GREEN + ". Pour confirmer cette vente, faites à nouveau un clic-gauche sur le panneau.");
 												}
 											}
 											else
 											{
-												plugin.confirm.add("sale_" + player.getName() + "_" + world.getName() + "_" + x + "_" + y + "_" + z);
-												player.sendMessage(ChatColor.GREEN + "Vous êtes sur le point de vendre " + ChatColor.AQUA + shop.getAmount() + " " + shop.getMaterial() + ChatColor.GREEN + " en échange de " + ChatColor.AQUA + plugin.economy.format(shop.getSale()) + ChatColor.GREEN + ". Pour confirmer cette vente, faites à nouveau un clic-droit sur le panneau.");
+												player.sendMessage(ChatColor.RED + "Le créateur de ce magasin n'a pas assez de sous pour cette vente.");
 											}
 										}
 										else
 										{
-											player.sendMessage(ChatColor.RED + "Le créateur de ce magasin n'a pas assez de sous pour cette vente.");
+											player.sendMessage(ChatColor.RED + "Ce magasin est plein.");
 										}
 									}
 									else
 									{
-										player.sendMessage(ChatColor.RED + "Ce magasin est plein.");
+										player.sendMessage(ChatColor.RED + "Vous devez avoir " + ChatColor.DARK_RED + shop.getAmount() + " " + shop.getMaterial().name() + ChatColor.RED + " dans votre main pour les vendre à ce magasin.");
 									}
 								}
 								else
 								{
-									player.sendMessage(ChatColor.RED + "Vous devez avoir " + ChatColor.DARK_RED + shop.getAmount() + " " + shop.getMaterial().name() + ChatColor.RED + " dans votre main pour les vendre à ce magasin.");
+									player.sendMessage(ChatColor.RED + "Aucun objet n'est défini à la vente dans ce magasin.");
 								}
 							}
 							else
@@ -163,7 +182,7 @@ public class SSPlayerListener implements Listener
 				else if (e.getAction() == Action.RIGHT_CLICK_BLOCK)
 				{
 					e.setCancelled(true);
-					// --------------- -- //
+					// ------------------ //
 					Material material = shop.getMaterial();
 					Byte data = shop.getData();
 					Integer amount = shop.getAmount();
@@ -177,7 +196,7 @@ public class SSPlayerListener implements Listener
 							playerinventory.addItem(new ItemStack(material, amount, data));
 							player.updateInventory();
 							
-							player.sendMessage(ChatColor.GREEN + "Vous avez retiré " + ChatColor.AQUA + amount + " " + material.name() + ChatColor.GREEN + " à votre magasin.");
+							player.sendMessage(ChatColor.DARK_RED + "- " + ChatColor.GREEN + "Vous avez retiré " + ChatColor.AQUA + amount + " " + material.name() + ChatColor.GREEN + " à votre magasin.");
 							
 							if ((shop.getPacks() == 0) && (sign.getLine(0).startsWith(ChatColor.AQUA.toString())))
 							{
@@ -205,8 +224,11 @@ public class SSPlayerListener implements Listener
 										Double z = location.getZ();
 										
 										if (plugin.confirm.contains("purchase_" + player.getName() + "_" + world.getName() + "_" + x + "_" + y + "_" + z))
-										{											
-											shop.subtractItems();
+										{
+											if (!shop.getInfinite())
+											{
+												shop.subtractItems();
+											}
 											
 											plugin.economy.depositPlayer(shop.getOwner(), shop.getPurchase());
 											plugin.economy.withdrawPlayer(player.getName(), shop.getPurchase());
@@ -214,7 +236,7 @@ public class SSPlayerListener implements Listener
 											playerinventory.addItem(new ItemStack(material, amount, data));
 											player.updateInventory();
 											
-											player.sendMessage(ChatColor.GREEN + "Vous avez acheté " + ChatColor.AQUA + shop.getAmount() + " " + material.name() + ChatColor.GREEN + " contre " + ChatColor.AQUA + shop.getSale() + ChatColor.GREEN + " à ce magasin.");
+											player.sendMessage(ChatColor.GREEN + "Vous avez acheté " + ChatColor.AQUA + shop.getAmount() + " " + material.name() + ChatColor.GREEN + " contre " + ChatColor.AQUA + plugin.economy.format(shop.getPurchase()) + ChatColor.GREEN + " à ce magasin.");
 											
 											if ((shop.getPacks() == 0) && (sign.getLine(0).startsWith(ChatColor.AQUA.toString())))
 											{
@@ -231,7 +253,7 @@ public class SSPlayerListener implements Listener
 									{
 										player.sendMessage(ChatColor.RED + "Vous n'avez pas assez de sous pour cet achat.");
 									}
-								}
+									}
 								else
 								{
 									player.sendMessage(ChatColor.RED + "Ce magasin est vide.");
@@ -252,7 +274,7 @@ public class SSPlayerListener implements Listener
 		}
 	}
 	
-	@EventHandler()
+	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent e)
 	{
 		for (SSObject shop : plugin.shops)

@@ -33,7 +33,7 @@ public class SSBlockListener implements Listener
 		
 		String[] lines = e.getLines();
 		
-		if (lines[0].equalsIgnoreCase("[commerce]") && (plugin.permission.has(player, "signshop.create")))	
+		if (((lines[0].equalsIgnoreCase("[commerce]")) || (lines[0].equalsIgnoreCase("[acommerce]"))) && (lines[0].equalsIgnoreCase("[commerce]")) ? (plugin.permission.has(player, "signshop.create")) : (plugin.permission.has(player, "signshop.adminshop.create")))
 		{
 			if (lines[1].contains(":"))
 			{
@@ -58,6 +58,8 @@ public class SSBlockListener implements Listener
 							}
 							
 							String owner = player.getName();
+							String type  = lines[0].replace("[", "").replace("]", "");
+							
 							Location location = block.getLocation();
 							
 							Material material = Material.AIR;
@@ -70,7 +72,7 @@ public class SSBlockListener implements Listener
 							Integer packs = 0;
 							Integer maximum = Integer.parseInt(args2[1]);
 							
-							SSObject shop = new SSObject(owner, location, material, data, purchase, sale, amount, packs, maximum, plugin);
+							SSObject shop = new SSObject(owner, type, location, material, data, purchase, sale, amount, packs, maximum, false, plugin);
 							
 							e.setLine(0, ChatColor.DARK_GRAY + "A/V par " + amount);
 							e.setLine(1, ChatColor.GOLD + "Aucun item");

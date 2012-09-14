@@ -11,10 +11,12 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import fr.rellynn.signshop.command.InfiniteCommand;
 import fr.rellynn.signshop.listeners.SSBlockListener;
 import fr.rellynn.signshop.listeners.SSEntityListener;
 import fr.rellynn.signshop.listeners.SSPlayerListener;
@@ -26,8 +28,12 @@ public class SignShopPlugin extends JavaPlugin
 	public Economy economy = null;
 	public Permission permission = null;
 	
+	public InfiniteCommand infiniteCommand = null;
+	
 	public ArrayList<SSObject> shops = null;
 	public ArrayList<String> confirm = null;
+	
+	public ArrayList<Player> infinitePlayers = null;
 	
 	public UtilManager um = null;
 	
@@ -44,8 +50,12 @@ public class SignShopPlugin extends JavaPlugin
 			setEnabled(false);
 		}
 		
+		setupCommands();
+		
 		shops = new ArrayList<SSObject>();
 		confirm = new ArrayList<String>();
+		
+		infinitePlayers = new ArrayList<Player>();
 		
 		um = new UtilManager(this);
 		
@@ -86,6 +96,12 @@ public class SignShopPlugin extends JavaPlugin
 		return true;
 	}
 	
+	public void setupCommands()
+	{
+		infiniteCommand = new InfiniteCommand(this);
+		getCommand("shop").setExecutor(infiniteCommand);
+	}
+	
 	private Boolean setupEconomy()
 	{
 		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
@@ -122,6 +138,7 @@ public class SignShopPlugin extends JavaPlugin
 			String node = "shops." + location.getWorld().getName() + "_" + location.getBlockX() + "_" + location.getBlockY() + "_" + location.getBlockZ();
 			
 			config.set(node + ".owner", shop.getOwner());
+			config.set(node + ".type", shop.getType());
 			config.set(node + ".location.world", location.getWorld().getName());
 			config.set(node + ".location.x", location.getBlockX());
 			config.set(node + ".location.y", location.getBlockY());
@@ -133,10 +150,11 @@ public class SignShopPlugin extends JavaPlugin
 			config.set(node + ".amount", shop.getAmount());
 			config.set(node + ".packs", shop.getPacks());
 			config.set(node + ".maximum", shop.getMaximum());
+			config.set(node + ".infinite", shop.getInfinite());
 			saveConfig();
 		}
 	}
-
+	
 	@SuppressWarnings("unused")
 	private void loadAll()
 	{
@@ -154,6 +172,7 @@ public class SignShopPlugin extends JavaPlugin
 				if (w != null)
 				{
 					String owner = cs.getString("owner");
+					String type = cs.getString("type");
 					Double x = cs.getDouble("location.x");
 					Double y = cs.getDouble("location.y");
 					Double z = cs.getDouble("location.z");
@@ -164,9 +183,10 @@ public class SignShopPlugin extends JavaPlugin
 					Integer amount = cs.getInt("amount");
 					Integer packs = cs.getInt("packs");
 					Integer maximum = cs.getInt("maximum");
+					Boolean infinite = cs.getBoolean("infinite");
 					
 					Location location = new Location(w, x, y, z);
-					SSObject shop = new SSObject(owner, location, material, data, purchase, sale, amount, packs, maximum, this);
+					SSObject shop = new SSObject(owner, type, location, material, data, purchase, sale, amount, packs, maximum, infinite, this);
 				}
 			}
 		}

@@ -16,6 +16,8 @@ public class SSObject
 {
 	// FIELDS
 	protected String owner;
+	protected String type;
+	
 	protected Location location;
 	protected Location fixLocation;
 	
@@ -30,14 +32,17 @@ public class SSObject
 	protected Integer maximum;
 	
 	protected Item tmpItem;
-	protected Boolean chunkLoaded; 
+	
+	protected Boolean infinite;
+	protected Boolean chunkLoaded;
 	
 	// CONSTRUCTOR
-	public SSObject(String owner, Location location, Material material, Byte data, Double purchase, Double sale, Integer amount, Integer packs, Integer maximum, SignShopPlugin plugin)
+	public SSObject(String owner, String type, Location location, Material material, Byte data, Double purchase, Double sale, Integer amount, Integer packs, Integer maximum, Boolean infinite, SignShopPlugin plugin)
 	{
 		try
 		{
 			this.owner = owner;
+			this.type = type;
 			this.location = location;
 			this.fixLocation = location.getBlock().getRelative(((Sign) location.getBlock().getState().getData()).getAttachedFace()).getLocation();
 			this.material = material;
@@ -47,6 +52,7 @@ public class SSObject
 			this.amount = amount;
 			this.packs = packs;
 			this.maximum = maximum;
+			this.infinite = infinite;
 			plugin.shops.add(this);
 			
 			initShop();
@@ -59,7 +65,7 @@ public class SSObject
 	// METHODS
 	private void initShop()
 	{
-		setChunkLoaded(fixLocation.getWorld().isChunkLoaded(fixLocation.getChunk()));
+		chunkLoaded = fixLocation.getWorld().isChunkLoaded(fixLocation.getChunk());
 		
 		if (chunkLoaded)
 		{
@@ -132,6 +138,11 @@ public class SSObject
 		return owner;
 	}
 	
+	public String getType()
+	{
+		return type;
+	}
+	
 	public Location getLocation()
 	{
 		return location;
@@ -182,15 +193,20 @@ public class SSObject
 		return tmpItem;
 	}
 	
-	// SETTERS
-	public void setMaterial(Material material)
+	public Boolean getInfinite()
 	{
-		this.material = material;
+		return infinite;
 	}
 	
-	public void setData(Byte data)
+	// SETTERS
+	public void setType(String type)
 	{
-		this.data = data;
+		this.type = type;
+	}
+	
+	public void setInfinite(Boolean infinite)
+	{
+		this.infinite = infinite;
 	}
 	
 	public void setChunkLoaded(Boolean chunkLoaded)

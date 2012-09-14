@@ -1,5 +1,9 @@
 name: SignShop
 author: Rellynn
 main: fr.rellynn.signshop.SignShopPlugin
-version: 1.3
+version: 1.4
 depend: [Vault]
+commands:
+   shop:
+      usage: /<command>
+      description: Commande du plugin SignShop
