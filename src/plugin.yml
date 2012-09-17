@@ -1,7 +1,7 @@
 name: SignShop
 author: Rellynn
 main: fr.rellynn.signshop.SignShopPlugin
-version: 1.4
+version: 1.4.5
 depend: [Vault]
 commands:
    shop:

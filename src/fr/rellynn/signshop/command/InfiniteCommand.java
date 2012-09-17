@@ -26,7 +26,7 @@ public class InfiniteCommand implements CommandExecutor
 			
 			if (label.equalsIgnoreCase("shop"))
 			{
-				if ((args.length == 2) && (args[1].equalsIgnoreCase("infinite")) && ((player.hasPermission("signshop.infinite")) || (player.hasPermission("signshop.commands.*"))))
+				if ((args[0].equalsIgnoreCase("infinite")) && ((player.hasPermission("signshop.infinite")) || (player.hasPermission("signshop.commands.*"))))
 				{
 					if (!plugin.infinitePlayers.contains(player))
 					{
